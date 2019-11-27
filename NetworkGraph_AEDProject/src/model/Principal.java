@@ -1,6 +1,11 @@
 package model;
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,10 +20,62 @@ public class Principal {
 	private AdjacencyList<NetworkDevice, Integer> networkList;
 	private boolean isMatrix;
 	
+	public void readFile(File selectedfile) {
+		if(selectedfile!=null) {
+			try {
+				BufferedReader br = new BufferedReader(new FileReader(selectedfile));
+				String line = br.readLine();
+				int count = 0;
+				int length = Integer.parseInt(line);
+				networkList = new AdjacencyList<NetworkDevice, Integer>(length);
+				networkMatrix = new AdjacencyMatrix<NetworkDevice, Integer>(length);
+				NetworkDevice[] devices = new NetworkDevice[length];
+				
+				line = br.readLine();
+				//Node Creation:
+				//Data[0] to IP Address, Data[1] to MAC Address, count to identifier,
+				//Data[2] to type of network device
+				//Edge Creation:
+				//Data[0] to position of Vertex One, Data[1] to position of Vertex Two,
+				//Data[2] to weight of the Vertex
+				while(line!=null) {
+					String[] data = line.split(" ");
+					if(count<length) {
+						devices[count] = new NetworkDevice(data[0], data[1], count, data[2]);
+						networkList.insertNode(devices[count]);
+						networkMatrix.insertNode(devices[count]);
+						count++;					
+					}else {
+						int positionVertexOne = Integer.parseInt(data[0]);
+						int positionVertexTwo = Integer.parseInt(data[1]);
+						int weight = Integer.parseInt(data[2]);
+						networkMatrix.insertEdge(positionVertexOne, positionVertexTwo, weight);
+						networkList.insertEdge(devices[positionVertexOne], 
+								devices[positionVertexTwo], weight);
+					}
+					line = br.readLine();
+				}
+				br.close();
+				System.out.println("LOGRADO");
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	public Principal() {
+		isMatrix = true;
+	}
 	
 	public Principal(int networkAmount) {
 		networkMatrix = new AdjacencyMatrix<>(networkAmount);
 		networkList = new AdjacencyList<>(networkAmount);
+		isMatrix = true;
 	}
 	
 
